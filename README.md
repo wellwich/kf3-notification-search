@@ -19,6 +19,9 @@
 
 ```bash
 git clone https://github.com/wellwich/kf3-notification-search
+```
+
+```bash
 cd ./kf3-notification-search
 ```
 
