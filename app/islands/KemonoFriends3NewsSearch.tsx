@@ -113,7 +113,6 @@ const KemonoFriends3NewsSearch = () => {
 
   return (
     <div class="flex flex-col bg-white p-4 m-4 rounded-md">
-      <h2 class="text-3xl font-bold">お知らせ</h2>
       <button
         class={`p-2 m-2 border border-gray-600 rounded-md text-white ${
           isSearchVisible ? "bg-gray-500" : "bg-blue-500"
