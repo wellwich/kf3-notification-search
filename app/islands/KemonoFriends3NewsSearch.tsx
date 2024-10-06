@@ -212,7 +212,7 @@ const KemonoFriends3NewsSearch = () => {
               class="flex flex-col justify-between"
             >
               <p class="h-16 overflow-hidden text-base">{news.title}</p>
-              <span class="text-xs mt-auto">{news.newsDate.slice(0, 10)}</span>
+              <span class="text-xs mt-auto">{news.newsDate.slice(0, 11)}</span>
             </a>
           </li>
         ))}
