@@ -37,9 +37,15 @@ or
 bun install
 ```
 
-### 3. wrangler.example.toml を wrangler.toml にする。
+### 3. wrangler で CloudFlare にログインする。
 
-### 4. ターミナルで Cloudflare KV の名前空間を作成する。
+```bash
+wrangler login
+```
+
+### 4. wrangler.example.toml を wrangler.toml にする。
+
+### 5. ターミナルで Cloudflare KV の名前空間を作成する。
 
 ```bash
 wrangler kv:namespace create KF3_API_CACHE
@@ -59,7 +65,7 @@ id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 上記の id を wrangler.toml の id にダブルクオーテーション付きで修正する。
 
-### 5. 開発環境で実行する
+### 6. 開発環境で実行する
 
 ```bash
 npm run dev
