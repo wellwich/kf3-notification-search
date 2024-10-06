@@ -15,7 +15,6 @@ app.get("/api/kf3-news", async (context) => {
   // キャッシュを確認して、存在すればそれを返す
   const cachedNewsData = await cache.get(cacheKey);
   if (cachedNewsData) {
-    console.log("キャッシュヒット:", cacheKey);
     return context.json(JSON.parse(cachedNewsData));
   }
 
