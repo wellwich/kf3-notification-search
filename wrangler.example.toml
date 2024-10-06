@@ -1,0 +1,8 @@
+name = "kf3-notification-search"
+compatibility_date = "2024-04-01"
+compatibility_flags = [ "nodejs_compat" ]
+pages_build_output_dir = "./dist"
+
+[[kv_namespaces]]
+binding = "KF3_API_CACHE"
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
