@@ -33,6 +33,12 @@ const KemonoFriends3NewsSearch = () => {
     }
   };
 
+  // Enterキーが押されたときに検索を実行
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing || event.key !== "Enter") return;
+    handleSearch();
+  };
+
   // 検索を実行する関数
   const handleSearch = () => {
     const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
@@ -190,6 +196,7 @@ const KemonoFriends3NewsSearch = () => {
             placeholder="検索"
             value={searchKeyword}
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
           />
           <button
             class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
