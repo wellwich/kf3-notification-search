@@ -19,6 +19,7 @@
 
 ```bash
 git clone https://github.com/wellwich/kf3-notification-search
+cd ./kf3-notification-search
 ```
 
 ### 2. 依存関係をインストールする。
@@ -38,7 +39,7 @@ npm install
 ### 4. ターミナルで Cloudflare KV の名前空間を作成する。
 
 ```bash
-npx wrangler kv namespace create KF3_API_CACHE
+wrangler kv:namespace create KF3_API_CACHE
 ```
 
 ```bash
