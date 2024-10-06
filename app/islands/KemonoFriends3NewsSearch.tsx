@@ -124,7 +124,7 @@ const KemonoFriends3NewsSearch = () => {
 
       {isSearchVisible && (
         <div>
-          <div>
+          <div class="p-4">
             <label for="sortOrder">ソート順:</label>
             <select
               id="sortOrder"
