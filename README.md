@@ -34,7 +34,7 @@ npm install
 or
 
 ```bash
-npm install
+bun install
 ```
 
 ### 3. wrangler.example.toml を wrangler.toml にする。
