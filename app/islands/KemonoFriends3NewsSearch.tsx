@@ -18,13 +18,14 @@ const KemonoFriends3NewsSearch = () => {
       .then((data) => {
         const result = newsArraySchema.safeParse(data);
         if (result.success) {
-          setAllNewsData(result.data); // 全データをセット
-          setNewsData(getSortedNews(result.data.slice(0, displayLimit))); // 初期表示データをセット
+          const sortedData = getSortedNews(result.data); // 全データをソート
+          setAllNewsData(sortedData); // 全データをセット
+          setNewsData(sortedData.slice(0, displayLimit)); // 初期表示データをセット
         } else {
           console.error("Data validation failed", result.error);
         }
       });
-  }, [displayLimit]);
+  }, [displayLimit, sortOrder, sortField]);
 
   // 検索キーワードの変更をハンドリング
   const handleSearchChange = (event: Event) => {
@@ -42,14 +43,16 @@ const KemonoFriends3NewsSearch = () => {
   // 検索を実行する関数
   const handleSearch = () => {
     const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
-    setNewsData(getSortedNews(filteredNews.slice(0, displayLimit)));
+    const sortedNews = getSortedNews(filteredNews);
+    setNewsData(sortedNews.slice(0, displayLimit));
   };
 
   // 「もっと見る」ボタンを押した時の処理
   const handleLoadMore = () => {
     setDisplayLimit((prevLimit) => prevLimit + 10);
     const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
-    setNewsData(getSortedNews(filteredNews.slice(0, displayLimit + 10)));
+    const sortedNews = getSortedNews(filteredNews);
+    setNewsData(sortedNews.slice(0, displayLimit + 10));
   };
 
   // ソート順を変更する
@@ -120,9 +123,8 @@ const KemonoFriends3NewsSearch = () => {
   return (
     <div class="flex flex-col bg-white p-4 m-4 rounded-md">
       <button
-        class={`p-2 m-2 border border-gray-600 rounded-md text-white ${
-          isSearchVisible ? "bg-gray-500" : "bg-blue-500"
-        }`}
+        class={`p-2 m-2 border border-gray-600 rounded-md text-white ${isSearchVisible ? "bg-gray-500" : "bg-blue-500"
+          }`}
         onClick={toggleSearchVisibility}
       >
         検索欄を{isSearchVisible ? "非表示" : "表示"}
@@ -227,13 +229,13 @@ const KemonoFriends3NewsSearch = () => {
 
       {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
         displayLimit && (
-        <button
-          class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-          onClick={handleLoadMore}
-        >
-          もっと見る
-        </button>
-      )}
+          <button
+            class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+            onClick={handleLoadMore}
+          >
+            もっと見る
+          </button>
+        )}
     </div>
   );
 };
