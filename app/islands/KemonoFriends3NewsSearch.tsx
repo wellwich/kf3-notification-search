@@ -14,7 +14,12 @@ const KemonoFriends3NewsSearch = () => {
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
     fetch("/api/kf3-news")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         const result = newsArraySchema.safeParse(data);
         if (result.success) {
@@ -24,6 +29,9 @@ const KemonoFriends3NewsSearch = () => {
         } else {
           console.error("Data validation failed", result.error);
         }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch news data:", error);
       });
   }, [displayLimit, sortOrder, sortField]);
 
@@ -123,8 +131,9 @@ const KemonoFriends3NewsSearch = () => {
   return (
     <div class="flex flex-col bg-white p-4 m-4 rounded-md">
       <button
-        class={`p-2 m-2 border border-gray-600 rounded-md text-white ${isSearchVisible ? "bg-gray-500" : "bg-blue-500"
-          }`}
+        class={`p-2 m-2 border border-gray-600 rounded-md text-white ${
+          isSearchVisible ? "bg-gray-500" : "bg-blue-500"
+        }`}
         onClick={toggleSearchVisibility}
       >
         検索欄を{isSearchVisible ? "非表示" : "表示"}
@@ -229,13 +238,13 @@ const KemonoFriends3NewsSearch = () => {
 
       {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
         displayLimit && (
-          <button
-            class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-            onClick={handleLoadMore}
-          >
-            もっと見る
-          </button>
-        )}
+        <button
+          class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+          onClick={handleLoadMore}
+        >
+          もっと見る
+        </button>
+      )}
     </div>
   );
 };
