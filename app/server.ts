@@ -58,9 +58,9 @@ app.get("/api/kf3-news", async (context) => {
     return context.json({ error: "データ形式が無効です" }, 400);
   }
 
-  // キャッシュにニュースデータを保存（10分間有効）
+  // キャッシュにニュースデータを保存（5分間有効）
   await cache.put(cacheKey, JSON.stringify(parsedNews.data), {
-    expirationTtl: 60 * 10,
+    expirationTtl: 60 * 5,
   });
 
   // 成功した場合、パースされたデータを返す
