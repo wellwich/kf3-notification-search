@@ -19,7 +19,7 @@ app.get("/api/kf3-news", async (context) => {
   }
 
   // ニュースデータを外部から取得
-  const newsUrl = "https://kemono-friends-3.jp/info/app/info/entries.txt";
+  const newsUrl = "https://kemono-friends-3.jp/info/app/info/all/entries.txt";
   const response = await fetch(newsUrl);
   const responseBody = await response.text();
   const newsJson = JSON.parse(responseBody);
