@@ -29,10 +29,10 @@ app.get("/api/kf3-news", async (context) => {
   // ニュースデータを外部から取得
   const newsUrls = [
     "https://kemono-friends-3.jp/info/app/important/entries.txt",
+    "https://kemono-friends-3.jp/info/app/info/entries.txt",
     "https://kemono-friends-3.jp/info/app/invitation/entries.txt",
     "https://kemono-friends-3.jp/info/app/event/entries.txt",
     "https://kemono-friends-3.jp/info/app/campaign/entries.txt",
-    "https://kemono-friends-3.jp/info/app/maintenance/entries.txt",
     "https://kemono-friends-3.jp/info/app/maintenance/entries.txt",
     "https://kemono-friends-3.jp/info/app/bug/entries.txt",
   ];
