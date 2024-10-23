@@ -7,6 +7,14 @@ const app = createApp();
 // アプリケーションのルートを表示
 showRoutes(app);
 
+// ニュースデータを取得する関数
+const fetchNewsData = async (url: string) => {
+  const response = await fetch(url);
+  const responseBody = await response.text();
+  const newsJson = JSON.parse(responseBody);
+  return newsJson.news;
+};
+
 // ニュースを取得するAPIエンドポイント
 app.get("/api/kf3-news", async (context) => {
   const cacheKey = "kf3-news"; // キャッシュキー
@@ -19,20 +27,31 @@ app.get("/api/kf3-news", async (context) => {
   }
 
   // ニュースデータを外部から取得
-  const newsUrl = "https://kemono-friends-3.jp/info/all/entries.txt";
-  const response = await fetch(newsUrl);
-  const responseBody = await response.text();
-  const newsJson = JSON.parse(responseBody);
-  const newsArray = newsJson.news;
+  const newsUrls = [
+    "https://kemono-friends-3.jp/info/app/important/entries.txt",
+    "https://kemono-friends-3.jp/info/app/invitation/entries.txt",
+    "https://kemono-friends-3.jp/info/app/event/entries.txt",
+    "https://kemono-friends-3.jp/info/app/campaign/entries.txt",
+    "https://kemono-friends-3.jp/info/app/maintenance/entries.txt",
+    "https://kemono-friends-3.jp/info/app/maintenance/entries.txt",
+    "https://kemono-friends-3.jp/info/app/bug/entries.txt",
+  ];
+
+  // 両方のURLからニュースデータを取得
+  const newsDataPromises = newsUrls.map(fetchNewsData);
+  const newsArrays = await Promise.all(newsDataPromises);
+
+  // ニュースデータをマージ
+  const mergedNewsArray = newsArrays.flat();
 
   // ニュースデータを日付の新しい順にソート
-  newsArray.sort(
+  mergedNewsArray.sort(
     (a: any, b: any) =>
       new Date(b.newsDate).getTime() - new Date(a.newsDate).getTime()
   );
 
   // データの形式をバリデーション
-  const parsedNews = newsArraySchema.safeParse(newsArray);
+  const parsedNews = newsArraySchema.safeParse(mergedNewsArray);
   if (!parsedNews.success) {
     // バリデーションエラーがあればログに記録してエラーレスポンスを返す
     console.error("データ形式のエラー:", parsedNews.error);
