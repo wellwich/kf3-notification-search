@@ -10,6 +10,8 @@ const KemonoFriends3NewsSearch = () => {
   const [sortOrder, setSortOrder] = useState("desc"); // ソート順
   const [sortField, setSortField] = useState("newsDate"); // ソート基準
   const [isSearchVisible, setIsSearchVisible] = useState(false); // 検索欄の表示状態
+  const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]); // フィルター終了日
 
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
@@ -35,6 +37,11 @@ const KemonoFriends3NewsSearch = () => {
       });
   }, [displayLimit, sortOrder, sortField]);
 
+  // 検索条件が変更されたときに検索を実行
+  useEffect(() => {
+    handleSearch();
+  }, [startDate, endDate, sortOrder, sortField, displayLimit]);
+
   // 検索キーワードの変更をハンドリング
   const handleSearchChange = (event: Event) => {
     if (event.target instanceof HTMLInputElement) {
@@ -50,17 +57,39 @@ const KemonoFriends3NewsSearch = () => {
 
   // 検索を実行する関数
   const handleSearch = () => {
-    const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
+    let filteredNews;
+    filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
+    filteredNews = filterNewsByDate(filteredNews, startDate, endDate);
     const sortedNews = getSortedNews(filteredNews);
     setNewsData(sortedNews.slice(0, displayLimit));
+  };
+
+  // 日付によるフィルター
+  const filterNewsByDate = (newsArray: Array<News>, start: string, end: string) => {
+    return newsArray.filter((news) => {
+      const newsDate = parseDateString(news.newsDate);
+      const startDate = start ? new Date(new Date(start).setHours(0, 0, 0, 0)).getTime() : -Infinity;
+      const endDate = end ? new Date(new Date(end).setHours(0, 0, 0, 0)).getTime() : Infinity;
+      return newsDate >= startDate && newsDate < endDate + 86400000; // 1日分のミリ秒を加算
+    });
+  };
+
+  // 日付の変更をハンドリング
+  const handleStartDateChange = (event: Event) => {
+    if (event.target instanceof HTMLInputElement) {
+      setStartDate(event.target.value);
+    }
+  };
+
+  const handleEndDateChange = (event: Event) => {
+    if (event.target instanceof HTMLInputElement) {
+      setEndDate(event.target.value);
+    }
   };
 
   // 「もっと見る」ボタンを押した時の処理
   const handleLoadMore = () => {
     setDisplayLimit((prevLimit) => prevLimit + 10);
-    const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
-    const sortedNews = getSortedNews(filteredNews);
-    setNewsData(sortedNews.slice(0, displayLimit + 10));
   };
 
   // ソート順を変更する
@@ -215,6 +244,27 @@ const KemonoFriends3NewsSearch = () => {
           >
             検索
           </button>
+          <div>
+            <div class="flex items-center">
+              <div class="border border-gray-600 rounded-md p-2 m-2">
+                <input
+                  type="date"
+                  id="startDate"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                />
+              </div>
+              <span> ～ </span>
+              <div class="border border-gray-600 rounded-md p-2 ml-2">
+                <input
+                  type="date"
+                  id="endDate"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
