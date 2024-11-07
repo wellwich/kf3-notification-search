@@ -1,5 +1,6 @@
 import { useEffect, useState } from "hono/jsx";
 import { newsArraySchema, News } from "../schema";
+import { QueryParser } from "../query-parser";
 
 // ニュースデータの検索・表示コンポーネント
 const KemonoFriends3NewsSearch = () => {
@@ -35,12 +36,12 @@ const KemonoFriends3NewsSearch = () => {
       .catch((error) => {
         console.error("Failed to fetch news data:", error);
       });
-  }, [displayLimit, sortOrder, sortField]);
+  }, []);
 
-  // 検索条件が変更されたときに検索を実行
+  // 検索キーワードを除く検索条件が変更されたときに検索を実行
   useEffect(() => {
     handleSearch();
-  }, [startDate, endDate, sortOrder, sortField, displayLimit]);
+  }, [displayLimit, sortOrder, sortField, startDate, endDate]);
 
   // 検索キーワードの変更をハンドリング
   const handleSearchChange = (event: Event) => {
@@ -49,7 +50,7 @@ const KemonoFriends3NewsSearch = () => {
     }
   };
 
-  // Enterキーが押されたときに検索を実行
+  // Enterキーが押されたときにキーワード検索を実行
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.isComposing || event.key !== "Enter") return;
     handleSearch();
@@ -123,8 +124,25 @@ const KemonoFriends3NewsSearch = () => {
   };
 
   // ニュースデータをキーワードでフィルター
-  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) =>
-    newsArray.filter((news) => news.title.includes(keyword));
+  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) => {
+    if (!keyword.trim()) return newsArray;
+
+    try {
+      const parser = new QueryParser(keyword);
+      let evaluator;
+      try {
+        evaluator = parser.parse();
+      } catch (error) {
+        console.error("Query parsing error:", error);
+        return [];
+      }
+      return newsArray.filter(news => evaluator(news.title));
+    } catch (error) {
+      console.error("Query parsing error:", error);
+      // エラー時は単純な部分一致検索にフォールバック
+      return newsArray.filter(news => news.title.includes(keyword));
+    }
+  };
 
   // ニュースデータをソート
   const getSortedNews = (data: Array<News>) => {
@@ -230,20 +248,24 @@ const KemonoFriends3NewsSearch = () => {
             />
             <label for="limitAll">全件</label>
           </div>
-          <input
-            type="text"
-            class="p-2 m-2 border border-gray-600 rounded-md"
-            placeholder="検索"
-            value={searchKeyword}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-            onClick={handleSearch}
-          >
-            検索
-          </button>
+          <div class="flex flex-col">
+            <div class="flex">
+              <input
+                type="text"
+                class="p-2 m-2 border border-gray-600 rounded-md flex-grow"
+                placeholder="(測定 OR 掃除) 開催 -予告"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+              />
+              <button
+                class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+                onClick={handleSearch}
+              >
+                検索
+              </button>
+            </div>
+          </div>
           <div>
             <div class="flex items-center">
               <div class="border border-gray-600 rounded-md p-2 m-2">
