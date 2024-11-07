@@ -38,3 +38,5 @@ wrangler.toml
 bun.lockb
 
 _headers
+
+package-lock.json

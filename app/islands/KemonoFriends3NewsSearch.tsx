@@ -1,5 +1,6 @@
 import { useEffect, useState } from "hono/jsx";
 import { newsArraySchema, News } from "../schema";
+import { QueryParser } from "../query-parser";
 
 // ニュースデータの検索・表示コンポーネント
 const KemonoFriends3NewsSearch = () => {
@@ -10,6 +11,8 @@ const KemonoFriends3NewsSearch = () => {
   const [sortOrder, setSortOrder] = useState("desc"); // ソート順
   const [sortField, setSortField] = useState("newsDate"); // ソート基準
   const [isSearchVisible, setIsSearchVisible] = useState(false); // 検索欄の表示状態
+  const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]); // フィルター終了日
 
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
@@ -33,7 +36,12 @@ const KemonoFriends3NewsSearch = () => {
       .catch((error) => {
         console.error("Failed to fetch news data:", error);
       });
-  }, [displayLimit, sortOrder, sortField]);
+  }, []);
+
+  // 検索キーワードを除く検索条件が変更されたときに検索を実行
+  useEffect(() => {
+    handleSearch();
+  }, [displayLimit, sortOrder, sortField, startDate, endDate]);
 
   // 検索キーワードの変更をハンドリング
   const handleSearchChange = (event: Event) => {
@@ -42,7 +50,7 @@ const KemonoFriends3NewsSearch = () => {
     }
   };
 
-  // Enterキーが押されたときに検索を実行
+  // Enterキーが押されたときにキーワード検索を実行
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.isComposing || event.key !== "Enter") return;
     handleSearch();
@@ -50,17 +58,39 @@ const KemonoFriends3NewsSearch = () => {
 
   // 検索を実行する関数
   const handleSearch = () => {
-    const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
+    let filteredNews;
+    filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
+    filteredNews = filterNewsByDate(filteredNews, startDate, endDate);
     const sortedNews = getSortedNews(filteredNews);
     setNewsData(sortedNews.slice(0, displayLimit));
+  };
+
+  // 日付によるフィルター
+  const filterNewsByDate = (newsArray: Array<News>, start: string, end: string) => {
+    return newsArray.filter((news) => {
+      const newsDate = parseDateString(news.newsDate);
+      const startDate = start ? new Date(new Date(start).setHours(0, 0, 0, 0)).getTime() : -Infinity;
+      const endDate = end ? new Date(new Date(end).setHours(0, 0, 0, 0)).getTime() : Infinity;
+      return newsDate >= startDate && newsDate < endDate + 86400000; // 1日分のミリ秒を加算
+    });
+  };
+
+  // 日付の変更をハンドリング
+  const handleStartDateChange = (event: Event) => {
+    if (event.target instanceof HTMLInputElement) {
+      setStartDate(event.target.value);
+    }
+  };
+
+  const handleEndDateChange = (event: Event) => {
+    if (event.target instanceof HTMLInputElement) {
+      setEndDate(event.target.value);
+    }
   };
 
   // 「もっと見る」ボタンを押した時の処理
   const handleLoadMore = () => {
     setDisplayLimit((prevLimit) => prevLimit + 10);
-    const filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
-    const sortedNews = getSortedNews(filteredNews);
-    setNewsData(sortedNews.slice(0, displayLimit + 10));
   };
 
   // ソート順を変更する
@@ -94,8 +124,25 @@ const KemonoFriends3NewsSearch = () => {
   };
 
   // ニュースデータをキーワードでフィルター
-  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) =>
-    newsArray.filter((news) => news.title.includes(keyword));
+  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) => {
+    if (!keyword.trim()) return newsArray;
+
+    try {
+      const parser = new QueryParser(keyword);
+      let evaluator;
+      try {
+        evaluator = parser.parse();
+      } catch (error) {
+        console.error("Query parsing error:", error);
+        return [];
+      }
+      return newsArray.filter(news => evaluator(news.title));
+    } catch (error) {
+      console.error("Query parsing error:", error);
+      // エラー時は単純な部分一致検索にフォールバック
+      return newsArray.filter(news => news.title.includes(keyword));
+    }
+  };
 
   // ニュースデータをソート
   const getSortedNews = (data: Array<News>) => {
@@ -201,20 +248,45 @@ const KemonoFriends3NewsSearch = () => {
             />
             <label for="limitAll">全件</label>
           </div>
-          <input
-            type="text"
-            class="p-2 m-2 border border-gray-600 rounded-md"
-            placeholder="検索"
-            value={searchKeyword}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-            onClick={handleSearch}
-          >
-            検索
-          </button>
+          <div class="flex flex-col">
+            <div class="flex">
+              <input
+                type="text"
+                class="p-2 m-2 border border-gray-600 rounded-md flex-grow"
+                placeholder="(測定 OR 掃除) 開催 -予告"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+              />
+              <button
+                class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+                onClick={handleSearch}
+              >
+                検索
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center">
+              <div class="border border-gray-600 rounded-md p-2 m-2">
+                <input
+                  type="date"
+                  id="startDate"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                />
+              </div>
+              <span> ～ </span>
+              <div class="border border-gray-600 rounded-md p-2 ml-2">
+                <input
+                  type="date"
+                  id="endDate"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
