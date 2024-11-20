@@ -35,6 +35,4 @@ lerna-debug.log*
 
 bun.lockb
 
-_headers
-
 package-lock.json
