@@ -45,6 +45,9 @@ wrangler login
 
 ### 4. wrangler.example.toml を wrangler.toml にする。
 
+既存の wrangler.toml がある場合は、削除してください。
+
+
 ### 5. ターミナルで Cloudflare KV の名前空間を作成する。
 
 ```bash
