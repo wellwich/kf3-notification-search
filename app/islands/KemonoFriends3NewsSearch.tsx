@@ -14,6 +14,7 @@ const KemonoFriends3NewsSearch = () => {
   const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]); // フィルター終了日
   const [numberOfNews, setNumberOfNews] = useState(0); // ニュースの数
+  const [isLoading, setIsLoading] = useState(true); // データ取得中の状態
 
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
@@ -37,6 +38,9 @@ const KemonoFriends3NewsSearch = () => {
       })
       .catch((error) => {
         console.error("Failed to fetch news data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -180,149 +184,158 @@ const KemonoFriends3NewsSearch = () => {
 
   return (
     <div class="flex flex-col bg-white p-4 m-4 rounded-md">
-      <button
-        class={`p-2 m-2 border border-gray-600 rounded-md text-white ${
-          isSearchVisible ? "bg-gray-500" : "bg-blue-500"
-        }`}
-        onClick={toggleSearchVisibility}
-      >
-        検索欄を{isSearchVisible ? "非表示" : "表示"}
-      </button>
-
-      {isSearchVisible && (
-        <div class="p-4">
-          <div>
-            <label for="sortOrder">ソート順:</label>
-            <select
-              id="sortOrder"
-              value={sortOrder}
-              onChange={handleSortOrderChange}
-            >
-              <option value="desc">新しい順</option>
-              <option value="asc">古い順</option>
-            </select>
-          </div>
-          <div>
-            <label for="sortField">ソート基準:</label>
-            <select
-              id="sortField"
-              value={sortField}
-              onChange={handleSortFieldChange}
-            >
-              <option value="newsDate">投稿日</option>
-              <option value="updated">更新日</option>
-            </select>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="limit10"
-              name="displayLimit"
-              value="10"
-              checked={displayLimit === 10}
-              onChange={handleDisplayLimitChange}
-            />
-            <label for="limit10">10件</label>
-            <input
-              type="radio"
-              id="limit50"
-              name="displayLimit"
-              value="50"
-              checked={displayLimit === 50}
-              onChange={handleDisplayLimitChange}
-            />
-            <label for="limit50">50件</label>
-            <input
-              type="radio"
-              id="limit100"
-              name="displayLimit"
-              value="100"
-              checked={displayLimit === 100}
-              onChange={handleDisplayLimitChange}
-            />
-            <label for="limit100">100件</label>
-            <input
-              type="radio"
-              id="limitAll"
-              name="displayLimit"
-              value="all"
-              checked={displayLimit === allNewsData.length}
-              onChange={handleDisplayLimitChange}
-            />
-            <label for="limitAll">全件</label>
-          </div>
-          <div class="flex flex-col">
-            <div class="flex">
-              <input
-                type="text"
-                class="p-2 m-2 border border-gray-600 rounded-md flex-grow"
-                placeholder="(測定 OR 掃除) 開催 -予告"
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                onKeyDown={handleKeyDown}
-              />
-              <button
-                class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-                onClick={handleSearch}
-              >
-                検索
-              </button>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center">
-              <div class="border border-gray-600 rounded-md p-2 m-2">
-                <input
-                  type="date"
-                  id="startDate"
-                  value={startDate}
-                  onChange={handleStartDateChange}
-                />
-              </div>
-              <span> ～ </span>
-              <div class="border border-gray-600 rounded-md p-2 ml-2">
-                <input
-                  type="date"
-                  id="endDate"
-                  value={endDate}
-                  onChange={handleEndDateChange}
-                />
-              </div>
-            </div>
-          </div>
+      {isLoading ? (
+        <div class="flex justify-center items-center p-4">
+          <div class="w-8 h-8 border-4 border-gray-200 border-t-gray-500 rounded-full animate-spin"></div>
+          <span class="ml-3">データを取得しています...</span>
         </div>
-      )}
-
-      <div class="p-2 m-2">
-        <span>おしらせの件数: {numberOfNews}件</span>
-      </div>
-
-      <ul>
-        {newsData.map((news, index) => (
-          <li
-            key={index}
-            class="p-2 m-2 hover:shadow-xl border border-gray-600 rounded-md"
+      ) : (
+        <>
+          <button
+            class={`p-2 m-2 border border-gray-600 rounded-md text-white ${
+              isSearchVisible ? "bg-gray-500" : "bg-blue-500"
+            }`}
+            onClick={toggleSearchVisibility}
           >
-            <a
-              href={`https://kemono-friends-3.jp${news.targetUrl}`}
-              target="_blank"
-              class="flex flex-col justify-between"
-            >
-              <p class="h-16 overflow-hidden text-base">{news.title}</p>
-              <span class="text-xs mt-auto">{news.newsDate.slice(0, 11)}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+            検索欄を{isSearchVisible ? "非表示" : "表示"}
+          </button>
 
-      {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
-        displayLimit && (
-        <button
-          class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
-          onClick={handleLoadMore}
-        >
-          もっと見る
-        </button>
+          {isSearchVisible && (
+            <div class="p-4">
+              <div>
+                <label for="sortOrder">ソート順:</label>
+                <select
+                  id="sortOrder"
+                  value={sortOrder}
+                  onChange={handleSortOrderChange}
+                >
+                  <option value="desc">新しい順</option>
+                  <option value="asc">古い順</option>
+                </select>
+              </div>
+              <div>
+                <label for="sortField">ソート基準:</label>
+                <select
+                  id="sortField"
+                  value={sortField}
+                  onChange={handleSortFieldChange}
+                >
+                  <option value="newsDate">投稿日</option>
+                  <option value="updated">更新日</option>
+                </select>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="limit10"
+                  name="displayLimit"
+                  value="10"
+                  checked={displayLimit === 10}
+                  onChange={handleDisplayLimitChange}
+                />
+                <label for="limit10">10件</label>
+                <input
+                  type="radio"
+                  id="limit50"
+                  name="displayLimit"
+                  value="50"
+                  checked={displayLimit === 50}
+                  onChange={handleDisplayLimitChange}
+                />
+                <label for="limit50">50件</label>
+                <input
+                  type="radio"
+                  id="limit100"
+                  name="displayLimit"
+                  value="100"
+                  checked={displayLimit === 100}
+                  onChange={handleDisplayLimitChange}
+                />
+                <label for="limit100">100件</label>
+                <input
+                  type="radio"
+                  id="limitAll"
+                  name="displayLimit"
+                  value="all"
+                  checked={displayLimit === allNewsData.length}
+                  onChange={handleDisplayLimitChange}
+                />
+                <label for="limitAll">全件</label>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex">
+                  <input
+                    type="text"
+                    class="p-2 m-2 border border-gray-600 rounded-md flex-grow"
+                    placeholder="(測定 OR 掃除) 開催 -予告"
+                    value={searchKeyword}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <button
+                    class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+                    onClick={handleSearch}
+                  >
+                    検索
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center">
+                  <div class="border border-gray-600 rounded-md p-2 m-2">
+                    <input
+                      type="date"
+                      id="startDate"
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                    />
+                  </div>
+                  <span> ～ </span>
+                  <div class="border border-gray-600 rounded-md p-2 ml-2">
+                    <input
+                      type="date"
+                      id="endDate"
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div class="p-2 m-2">
+            <span>おしらせの件数: {numberOfNews}件</span>
+          </div>
+
+          <ul>
+            {newsData.map((news, index) => (
+              <li
+                key={index}
+                class="p-2 m-2 hover:shadow-xl border border-gray-600 rounded-md"
+              >
+                <a
+                  href={`https://kemono-friends-3.jp${news.targetUrl}`}
+                  target="_blank"
+                  class="flex flex-col justify-between"
+                >
+                  <p class="h-16 overflow-hidden text-base">{news.title}</p>
+                  <span class="text-xs mt-auto">{news.newsDate.slice(0, 11)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
+            displayLimit && (
+            <button
+              class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
+              onClick={handleLoadMore}
+            >
+              もっと見る
+            </button>
+          )}
+        </>
       )}
     </div>
   );
