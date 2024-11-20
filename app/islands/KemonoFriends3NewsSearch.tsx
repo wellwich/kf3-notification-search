@@ -13,6 +13,7 @@ const KemonoFriends3NewsSearch = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false); // 検索欄の表示状態
   const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]); // フィルター終了日
+  const [numberOfNews, setNumberOfNews] = useState(0); // ニュースの数
 
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
@@ -29,6 +30,7 @@ const KemonoFriends3NewsSearch = () => {
           const sortedData = getSortedNews(result.data); // 全データをソート
           setAllNewsData(sortedData); // 全データをセット
           setNewsData(sortedData.slice(0, displayLimit)); // 初期表示データをセット
+          setNumberOfNews(sortedData.length); // ニュースの件数を設定
         } else {
           console.error("Data validation failed", result.error);
         }
@@ -62,6 +64,7 @@ const KemonoFriends3NewsSearch = () => {
     filteredNews = filterNewsByKeyword(allNewsData, searchKeyword);
     filteredNews = filterNewsByDate(filteredNews, startDate, endDate);
     const sortedNews = getSortedNews(filteredNews);
+    setNumberOfNews(filteredNews.length);
     setNewsData(sortedNews.slice(0, displayLimit));
   };
 
@@ -289,6 +292,10 @@ const KemonoFriends3NewsSearch = () => {
           </div>
         </div>
       )}
+
+      <div class="p-2 m-2">
+        <span>おしらせの件数: {numberOfNews}件</span>
+      </div>
 
       <ul>
         {newsData.map((news, index) => (

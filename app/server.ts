@@ -26,32 +26,33 @@ app.get("/api/kf3-news", async (context) => {
     return context.json(JSON.parse(cachedNewsData));
   }
 
+  // 2024年11月7日までのニュースデータを取得
+  const oldNewsUrl =
+    "https://data.wellwich.com/kf3/entries_merged_20241107.json";
+  const oldNewsData = await fetchNewsData(oldNewsUrl);
+
   // ニュースデータを外部から取得
-  const newsUrls = [
-    "https://kemono-friends-3.jp/info/app/important/entries.txt",
-    "https://kemono-friends-3.jp/info/app/info/entries.txt",
-    "https://kemono-friends-3.jp/info/app/invitation/entries.txt",
-    "https://kemono-friends-3.jp/info/app/event/entries.txt",
-    "https://kemono-friends-3.jp/info/app/campaign/entries.txt",
-    "https://kemono-friends-3.jp/info/app/maintenance/entries.txt",
-    "https://kemono-friends-3.jp/info/app/bug/entries.txt",
-  ];
+  const newNewsUrl = "https://kemono-friends-3.jp/info/all/entries.txt";
 
   // 両方のURLからニュースデータを取得
-  const newsDataPromises = newsUrls.map(fetchNewsData);
-  const newsArrays = await Promise.all(newsDataPromises);
+  const newNewsData = await fetchNewsData(newNewsUrl);
 
   // ニュースデータをマージ
-  const mergedNewsArray = newsArrays.flat();
+  const mergedNewsArray = [...oldNewsData, ...newNewsData.flat()];
+
+  // 重複を削除（ニュースのIDを基に一意性を保証）
+  const uniqueNewsArray = Array.from(
+    new Map(mergedNewsArray.map((item) => [item.id, item])).values()
+  );
 
   // ニュースデータを日付の新しい順にソート
-  mergedNewsArray.sort(
+  uniqueNewsArray.sort(
     (a: any, b: any) =>
       new Date(b.newsDate).getTime() - new Date(a.newsDate).getTime()
   );
 
   // データの形式をバリデーション
-  const parsedNews = newsArraySchema.safeParse(mergedNewsArray);
+  const parsedNews = newsArraySchema.safeParse(uniqueNewsArray);
   if (!parsedNews.success) {
     // バリデーションエラーがあればログに記録してエラーレスポンスを返す
     console.error("データ形式のエラー:", parsedNews.error);
