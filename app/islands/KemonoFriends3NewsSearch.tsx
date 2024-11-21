@@ -33,6 +33,17 @@ const KemonoFriends3NewsSearch = () => {
           setAllNewsData(sortedData); // 全データをセット
           setNewsData(sortedData.slice(0, selectedDisplayLimit)); // 初期表示データをセット
           setNumberOfNews(sortedData.length); // ニュースの件数を設定
+
+          // 表示件数を設定
+          const savedDisplayLimit = localStorage.getItem("selectedDisplayLimit");
+          if (savedDisplayLimit) {
+            const limit =
+              savedDisplayLimit === "all"
+                  ? sortedData.length
+                  : Number(savedDisplayLimit);
+            setSelectedDisplayLimit(limit);
+            setDisplayLimit(limit);
+          }
         } else {
           console.error("Data validation failed", result.error);
         }
@@ -124,6 +135,7 @@ const KemonoFriends3NewsSearch = () => {
           : Number(event.target.value);
       setSelectedDisplayLimit(newLimit);
       setDisplayLimit(newLimit);
+      localStorage.setItem("selectedDisplayLimit", event.target.value);
     }
   };
 
