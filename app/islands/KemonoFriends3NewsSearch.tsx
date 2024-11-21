@@ -326,15 +326,14 @@ const KemonoFriends3NewsSearch = () => {
             ))}
           </ul>
 
-          {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
-            displayLimit && (
+          {numberOfNews > displayLimit && (
             <button
               class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
               onClick={handleLoadMore}
             >
               もっと見る
             </button>
-          )}
+          ) || null}
         </>
       )}
     </div>
