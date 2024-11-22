@@ -1,11 +1,9 @@
 import { showRoutes } from "hono/dev";
 import { createApp } from "honox/server";
+import { createHono } from "honox/factory";
 import { newsArraySchema } from "./schema";
 
-const app = createApp();
-
-// アプリケーションのルートを表示
-showRoutes(app);
+const baseApp = createHono();
 
 // ニュースデータを取得する関数
 const fetchNewsData = async (url: string) => {
@@ -16,7 +14,7 @@ const fetchNewsData = async (url: string) => {
 };
 
 // ニュースを取得するAPIエンドポイント
-app.get("/api/kf3-news", async (context) => {
+baseApp.get("/api/kf3-news", async (context) => {
   const cacheKey = "kf3-news"; // キャッシュキー
   const cache = context.env.KF3_API_CACHE; // キャッシュオブジェクト
 
@@ -67,5 +65,10 @@ app.get("/api/kf3-news", async (context) => {
   // 成功した場合、パースされたデータを返す
   return context.json(parsedNews.data);
 });
+
+const app = createApp({ app: baseApp });
+
+// アプリケーションのルートを表示
+showRoutes(app);
 
 export default app;
