@@ -12,7 +12,7 @@
   "dependencies": {
     "@hono/vite-cloudflare-pages": "^0.4.2",
     "@hono/vite-ssg": "^0.1.0",
-    "hono": "^4.6.3",
+    "hono": "^4.6.11",
     "honox": "^0.1.26"
   },
   "devDependencies": {
