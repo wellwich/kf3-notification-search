@@ -319,7 +319,7 @@ const KemonoFriends3NewsSearch = () => {
                   target="_blank"
                   class="flex flex-col justify-between"
                 >
-                  <p class="h-16 overflow-hidden text-base">{news.title}</p>
+                  <p class="min-h-16 overflow-hidden text-base">{news.title}</p>
                   <span class="text-xs mt-auto">{news.newsDate.slice(0, 11)}</span>
                 </a>
               </li>
