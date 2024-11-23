@@ -193,7 +193,7 @@ const KemonoFriends3NewsSearch = () => {
           </div>
         ) : (
           <div class="space-y-6">
-            {/* Search Toggle Button */}
+            {/* 検索欄トグルボタン */}
             <button
               onClick={toggleSearchVisibility}
               class="w-full md:w-auto px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
@@ -222,7 +222,7 @@ const KemonoFriends3NewsSearch = () => {
                 isSearchVisible ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              <div class="bg-white p-3 rounded-lg shadow-md space-y-3">
+              <div class="bg-white p-1 rounded-lg space-y-3">
                 {/* ソート順と表示件数 */}
                 <div class="flex flex-wrap items-center gap-4">
                   <div class="flex items-center gap-2">
@@ -233,7 +233,7 @@ const KemonoFriends3NewsSearch = () => {
                       id="sortOrder"
                       value={sortOrder}
                       onChange={handleSortOrderChange}
-                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="desc">新しい順</option>
                       <option value="asc">古い順</option>
@@ -248,7 +248,7 @@ const KemonoFriends3NewsSearch = () => {
                       id="displayLimit"
                       value={selectedDisplayLimit === Infinity ? "all" : selectedDisplayLimit.toString()}
                       onChange={handleSelectedDisplayLimitChange}
-                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="10">10件</option>
                       <option value="50">50件</option>
@@ -259,14 +259,14 @@ const KemonoFriends3NewsSearch = () => {
                 </div>
 
                 {/* キーワード検索 */}
-                <div class="space-y-2">
-                  <label class="block text-sm font-medium text-gray-700">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
                     キーワード検索:
                   </label>
-                  <div class="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <input
                       type="text"
-                      class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="(測定 or 掃除) 開催 -予告"
                       value={searchKeyword}
                       onChange={handleSearchChange}
@@ -274,7 +274,7 @@ const KemonoFriends3NewsSearch = () => {
                     />
                     <button
                       onClick={handleSearch}
-                      class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
                     >
                       検索
                     </button>
@@ -286,13 +286,13 @@ const KemonoFriends3NewsSearch = () => {
                   <label class="block text-sm font-medium text-gray-700">
                     期間:
                   </label>
-                  <div class="flex flex-wrap items-center gap-4">
+                  <div class="flex flex-wrap items-center gap-2">
                     <input
                       type="date"
                       id="startDate"
                       value={startDate}
                       onChange={handleStartDateChange}
-                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                     <span class="text-gray-500">～</span>
                     <input
@@ -300,7 +300,7 @@ const KemonoFriends3NewsSearch = () => {
                       id="endDate"
                       value={endDate}
                       onChange={handleEndDateChange}
-                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
