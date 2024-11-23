@@ -7,8 +7,9 @@ const KemonoFriends3NewsSearch = () => {
   const [newsData, setNewsData] = useState<Array<News>>([]); // 表示されるニュースデータ
   const [allNewsData, setAllNewsData] = useState<Array<News>>([]); // 全ニュースデータ
   const [searchKeyword, setSearchKeyword] = useState(""); // 検索キーワード
-  const [selectedDisplayLimit, setSelectedDisplayLimit] = useState(10); // 選択された表示件数
-  const [displayLimit, setDisplayLimit] = useState(10); // 表示件数
+  const [selectedDisplayLimitString, setSelectedDisplayLimitString] = useState<string>("10"); // 選択された表示件数(文字列)
+  const [selectedDisplayLimit, setSelectedDisplayLimit] = useState<number>(10); // 選択された表示件数(数値)
+  const [displayLimit, setDisplayLimit] = useState<number>(10); // 表示件数(数値、もっと見るボタンで加算)
   const [sortOrder, setSortOrder] = useState("desc"); // ソート順
   const [isSearchVisible, setIsSearchVisible] = useState(false); // 検索欄の表示状態
   const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
@@ -36,12 +37,7 @@ const KemonoFriends3NewsSearch = () => {
           // 表示件数を設定
           const savedDisplayLimit = localStorage.getItem("selectedDisplayLimit");
           if (savedDisplayLimit) {
-            const limit =
-              savedDisplayLimit === "all"
-                  ? sortedData.length
-                  : Number(savedDisplayLimit);
-            setSelectedDisplayLimit(limit);
-            setDisplayLimit(limit);
+            setSelectedDisplayLimitString(savedDisplayLimit);
           }
         } else {
           console.error("Data validation failed", result.error);
@@ -54,6 +50,16 @@ const KemonoFriends3NewsSearch = () => {
         setIsLoading(false);
       });
   }, []);
+
+  // 表示件数が変更されたときに表示件数を更新
+  useEffect(() => {
+    const newLimit =
+      selectedDisplayLimitString === "all"
+        ? Infinity
+        : Number(selectedDisplayLimitString);
+    setSelectedDisplayLimit(newLimit);
+    setDisplayLimit(newLimit);
+  }, [selectedDisplayLimitString]);
 
   // 検索キーワードを除く検索条件が変更されたときに検索を実行
   useEffect(() => {
@@ -120,13 +126,8 @@ const KemonoFriends3NewsSearch = () => {
 
   // 表示件数を変更する
   const handleSelectedDisplayLimitChange = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      const newLimit =
-        event.target.value === "all"
-          ? allNewsData.length
-          : Number(event.target.value);
-      setSelectedDisplayLimit(newLimit);
-      setDisplayLimit(newLimit);
+    if (event.target instanceof HTMLSelectElement) {
+      setSelectedDisplayLimitString(event.target.value);
       localStorage.setItem("selectedDisplayLimit", event.target.value);
     }
   };
@@ -222,56 +223,38 @@ const KemonoFriends3NewsSearch = () => {
               }`}
             >
               <div class="bg-white p-3 rounded-lg shadow-md space-y-3">
-                {/* ソート順 */}
-                <div class="flex items-center gap-4">
-                  <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="sortOrder">
-                    ソート順:
-                  </label>
-                  <select
-                    id="sortOrder"
-                    value={sortOrder}
-                    onChange={handleSortOrderChange}
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="desc">新しい順</option>
-                    <option value="asc">古い順</option>
-                  </select>
-                </div>
+                {/* ソート順と表示件数 */}
+                <div class="flex flex-wrap items-center gap-4">
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="sortOrder">
+                      ソート順:
+                    </label>
+                    <select
+                      id="sortOrder"
+                      value={sortOrder}
+                      onChange={handleSortOrderChange}
+                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="desc">新しい順</option>
+                      <option value="asc">古い順</option>
+                    </select>
+                  </div>
 
-                {/* 表示件数 */}
-                <div class="flex items-center gap-4">
-                  <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                    表示件数:
-                  </label>
-                  <div class="flex flex-wrap gap-4">
-                    {[
-                      { id: "limit10", value: "10", label: "10件" },
-                      { id: "limit50", value: "50", label: "50件" },
-                      { id: "limit100", value: "100", label: "100件" },
-                      { id: "limitAll", value: "all", label: "全件" },
-                    ].map(({ id, value, label }) => (
-                      <div class="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          id={id}
-                          name="displayLimit"
-                          value={value}
-                          checked={
-                            value === "all"
-                              ? selectedDisplayLimit === allNewsData.length
-                              : selectedDisplayLimit === Number(value)
-                          }
-                          onChange={handleSelectedDisplayLimitChange}
-                          class="w-4 h-4 text-blue-500 focus:ring-blue-500"
-                        />
-                        <label
-                          for={id}
-                          class="text-sm text-gray-700 cursor-pointer"
-                        >
-                          {label}
-                        </label>
-                      </div>
-                    ))}
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="displayLimit">
+                      表示件数:
+                    </label>
+                    <select
+                      id="displayLimit"
+                      value={selectedDisplayLimit === Infinity ? "all" : selectedDisplayLimit.toString()}
+                      onChange={handleSelectedDisplayLimitChange}
+                      class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="10">10件</option>
+                      <option value="50">50件</option>
+                      <option value="100">100件</option>
+                      <option value="all">全件</option>
+                    </select>
                   </div>
                 </div>
 
