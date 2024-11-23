@@ -13,4 +13,7 @@ export default defineConfig({
     }),
     build(),
   ],
+  ssr: {
+    external: ["dayjs"],
+  },
 });
