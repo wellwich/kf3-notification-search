@@ -193,13 +193,12 @@ const KemonoFriends3NewsSearch = () => {
   return (
     <div class="min-h-screen bg-yellow-400 px-4">
       <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6 my-4">
-        {isLoading ? (
-          <div class="flex justify-center items-center p-8">
+          <div class={`flex justify-center items-center p-8 ${isLoading ? "" : "hidden"}`}>
             <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
             <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
           </div>
-        ) : (
-          <div class="space-y-3" >
+
+          <div class={`space-y-3 ${isLoading ? "hidden" : ""}`} >
             {/* 検索欄トグルボタン */}
             <button
               onClick={toggleSearchVisibility}
@@ -355,7 +354,6 @@ const KemonoFriends3NewsSearch = () => {
               </div>
             )}
           </div>
-        )}
       </div>
     </div>
   );
