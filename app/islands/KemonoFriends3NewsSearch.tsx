@@ -39,6 +39,12 @@ const KemonoFriends3NewsSearch = () => {
           if (savedDisplayLimit) {
             setSelectedDisplayLimitString(savedDisplayLimit);
           }
+
+          // 検索欄の表示状態を設定
+          const savedSearchVisibility = localStorage.getItem("isSearchVisible");
+          if (savedSearchVisibility) {
+            setIsSearchVisible(savedSearchVisibility === "true");
+          }
         } else {
           console.error("Data validation failed", result.error);
         }
@@ -135,6 +141,7 @@ const KemonoFriends3NewsSearch = () => {
   // 検索欄の表示・非表示を切り替える
   const toggleSearchVisibility = () => {
     setIsSearchVisible((prev) => !prev);
+    localStorage.setItem("isSearchVisible", (!isSearchVisible).toString());
   };
 
   // ニュースデータをキーワードでフィルター
@@ -192,7 +199,7 @@ const KemonoFriends3NewsSearch = () => {
             <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
           </div>
         ) : (
-          <div class="space-y-3">
+          <div class="space-y-3" >
             {/* 検索欄トグルボタン */}
             <button
               onClick={toggleSearchVisibility}
