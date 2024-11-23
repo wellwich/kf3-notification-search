@@ -192,7 +192,7 @@ const KemonoFriends3NewsSearch = () => {
             <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
           </div>
         ) : (
-          <div class="space-y-6">
+          <div class="space-y-3">
             {/* 検索欄トグルボタン */}
             <button
               onClick={toggleSearchVisibility}
@@ -305,6 +305,7 @@ const KemonoFriends3NewsSearch = () => {
                   </div>
                 </div>
               </div>
+              <div class="border-t border-gray-300 my-4"></div>
             </div>
 
             {/* お知らせヒット件数 */}
