@@ -7,6 +7,7 @@ const KemonoFriends3NewsSearch = () => {
   const [newsData, setNewsData] = useState<Array<News>>([]); // 表示されるニュースデータ
   const [allNewsData, setAllNewsData] = useState<Array<News>>([]); // 全ニュースデータ
   const [searchKeyword, setSearchKeyword] = useState(""); // 検索キーワード
+  const [selectedDisplayLimit, setSelectedDisplayLimit] = useState(10); // 選択された表示件数
   const [displayLimit, setDisplayLimit] = useState(10); // 表示件数
   const [sortOrder, setSortOrder] = useState("desc"); // ソート順
   const [sortField, setSortField] = useState("newsDate"); // ソート基準
@@ -30,8 +31,19 @@ const KemonoFriends3NewsSearch = () => {
         if (result.success) {
           const sortedData = getSortedNews(result.data); // 全データをソート
           setAllNewsData(sortedData); // 全データをセット
-          setNewsData(sortedData.slice(0, displayLimit)); // 初期表示データをセット
+          setNewsData(sortedData.slice(0, selectedDisplayLimit)); // 初期表示データをセット
           setNumberOfNews(sortedData.length); // ニュースの件数を設定
+
+          // 表示件数を設定
+          const savedDisplayLimit = localStorage.getItem("selectedDisplayLimit");
+          if (savedDisplayLimit) {
+            const limit =
+              savedDisplayLimit === "all"
+                  ? sortedData.length
+                  : Number(savedDisplayLimit);
+            setSelectedDisplayLimit(limit);
+            setDisplayLimit(limit);
+          }
         } else {
           console.error("Data validation failed", result.error);
         }
@@ -47,7 +59,7 @@ const KemonoFriends3NewsSearch = () => {
   // 検索キーワードを除く検索条件が変更されたときに検索を実行
   useEffect(() => {
     handleSearch();
-  }, [displayLimit, sortOrder, sortField, startDate, endDate]);
+  }, [selectedDisplayLimit, displayLimit, sortOrder, sortField, startDate, endDate]);
 
   // 検索キーワードの変更をハンドリング
   const handleSearchChange = (event: Event) => {
@@ -115,13 +127,15 @@ const KemonoFriends3NewsSearch = () => {
   };
 
   // 表示件数を変更する
-  const handleDisplayLimitChange = (event: Event) => {
+  const handleSelectedDisplayLimitChange = (event: Event) => {
     if (event.target instanceof HTMLInputElement) {
       const newLimit =
         event.target.value === "all"
           ? allNewsData.length
           : Number(event.target.value);
+      setSelectedDisplayLimit(newLimit);
       setDisplayLimit(newLimit);
+      localStorage.setItem("selectedDisplayLimit", event.target.value);
     }
   };
 
@@ -230,8 +244,8 @@ const KemonoFriends3NewsSearch = () => {
                   id="limit10"
                   name="displayLimit"
                   value="10"
-                  checked={displayLimit === 10}
-                  onChange={handleDisplayLimitChange}
+                  checked={selectedDisplayLimit === 10}
+                  onChange={handleSelectedDisplayLimitChange}
                 />
                 <label for="limit10">10件</label>
                 <input
@@ -239,8 +253,8 @@ const KemonoFriends3NewsSearch = () => {
                   id="limit50"
                   name="displayLimit"
                   value="50"
-                  checked={displayLimit === 50}
-                  onChange={handleDisplayLimitChange}
+                  checked={selectedDisplayLimit === 50}
+                  onChange={handleSelectedDisplayLimitChange}
                 />
                 <label for="limit50">50件</label>
                 <input
@@ -248,8 +262,8 @@ const KemonoFriends3NewsSearch = () => {
                   id="limit100"
                   name="displayLimit"
                   value="100"
-                  checked={displayLimit === 100}
-                  onChange={handleDisplayLimitChange}
+                  checked={selectedDisplayLimit === 100}
+                  onChange={handleSelectedDisplayLimitChange}
                 />
                 <label for="limit100">100件</label>
                 <input
@@ -257,8 +271,8 @@ const KemonoFriends3NewsSearch = () => {
                   id="limitAll"
                   name="displayLimit"
                   value="all"
-                  checked={displayLimit === allNewsData.length}
-                  onChange={handleDisplayLimitChange}
+                  checked={selectedDisplayLimit === allNewsData.length}
+                  onChange={handleSelectedDisplayLimitChange}
                 />
                 <label for="limitAll">全件</label>
               </div>
@@ -326,15 +340,14 @@ const KemonoFriends3NewsSearch = () => {
             ))}
           </ul>
 
-          {allNewsData.filter((news) => news.title.includes(searchKeyword)).length >
-            displayLimit && (
+          {numberOfNews > displayLimit && (
             <button
               class="p-2 m-2 border border-gray-600 rounded-md bg-blue-500 text-white"
               onClick={handleLoadMore}
             >
               もっと見る
             </button>
-          )}
+          ) || null}
         </>
       )}
     </div>
