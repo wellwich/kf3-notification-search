@@ -202,7 +202,9 @@ const KemonoFriends3NewsSearch = () => {
             {/* 検索欄トグルボタン */}
             <button
               onClick={toggleSearchVisibility}
-              class="w-full md:w-auto px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              class={`w-full md:w-auto px-6 py-3 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+                isSearchVisible ? "bg-gray-500 hover:bg-gray-600" : "bg-blue-500 hover:bg-blue-600"
+              }`}
             >
               <svg
                 class={`w-5 h-5 transition-transform duration-200 ${
