@@ -1,10 +1,7 @@
 import { useEffect, useState } from "hono/jsx";
 import { newsArraySchema, News } from "../schema";
 import { QueryParser } from "../query-parser";
-import dayjs from 'dayjs';
-import 'dayjs/locale/ja';
-
-dayjs.locale('ja');
+import { getJapaneseDate } from "../get-japanese-date";
 
 
 // ニュースデータの検索・表示コンポーネント
@@ -18,7 +15,7 @@ const KemonoFriends3NewsSearch = () => {
   const [sortField, setSortField] = useState("newsDate"); // ソート基準
   const [isSearchVisible, setIsSearchVisible] = useState(false); // 検索欄の表示状態
   const [startDate, setStartDate] = useState("2019-09-24"); // フィルター開始日
-  const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD')); // フィルター終了日
+  const [endDate, setEndDate] = useState(getJapaneseDate()); // フィルター終了日
   const [numberOfNews, setNumberOfNews] = useState(0); // ニュースの数
   const [isLoading, setIsLoading] = useState(true); // データ取得中の状態
 
