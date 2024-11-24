@@ -6,7 +6,7 @@
     "build": "vite build --mode client && vite build",
     "preview": "wrangler pages dev",
     "deploy": "$npm_execpath run build && wrangler pages deploy",
-    "test": "vite-node ./app/__tests__/query-parser.test.ts"
+    "test": "vite-node ./app/__tests__/query-parser.test.ts && vite-node ./app/__tests__/get-japanese-date.test.ts"
   },
   "private": true,
   "dependencies": {
