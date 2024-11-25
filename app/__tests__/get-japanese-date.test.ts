@@ -32,6 +32,20 @@ export function runTests() {
     const actual = getJapaneseDate();
     return expected === actual;
   });
+
+  test("DateオブジェクトとgetJapaneseDateでギリギリ日付が変わるケース", () => {
+    const UtcDateMock = "2021-12-31T15:00:00Z"; // 日本時間でギリギリ2022-01-01になる
+    const expected = new Date(UtcDateMock).toISOString().split("T")[0]; // 2021-12-31
+    const actual = getJapaneseDate(UtcDateMock); // 2022-01-01
+    return expected !== actual;
+  });
+
+  test("DateオブジェクトとgetJapaneseDateでギリギリ日付が変わらないケース", () => {
+    const UtcDateMock = "2021-12-31T14:59:59Z"; // 日本時間でギリギリ2021-12-31になる
+    const expected = new Date(UtcDateMock).toISOString().split("T")[0]; // 2021-12-31
+    const actual = getJapaneseDate(UtcDateMock); // 2021-12-31
+    return expected === actual;
+  });
 }
 
 console.log("get-japanese-date Tests:");
