@@ -23,14 +23,13 @@ const initKatakanaToHiraganaMap = (): void => {
   }
 };
 
-// マップの初期化を一度だけ実行
 initZenkakuToHankakuMap();
 initKatakanaToHiraganaMap();
 
 /**
- * 文字列を配列に分割せずに直接変換を行う最適化された関数
- * @param text 変換対象テキスト
- * @returns 変換後のテキスト
+ * キーワードフィルタリング用のクエリを正規化します。
+ * @param text 正規化対象テキスト
+ * @returns 正規化後のテキスト
  */
 export function normalizeQuery(text: string): string {
   text = text.trim();
