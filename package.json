@@ -6,12 +6,13 @@
     "build": "vite build --mode client && vite build",
     "preview": "wrangler pages dev",
     "deploy": "$npm_execpath run build && wrangler pages deploy",
-    "test": "vite-node ./app/__tests__/query-parser.test.ts"
+    "test": "vite-node ./app/__tests__/query-parser.test.ts && vite-node ./app/__tests__/get-japanese-date.test.ts"
   },
   "private": true,
   "dependencies": {
     "@hono/vite-cloudflare-pages": "^0.4.2",
     "@hono/vite-ssg": "^0.1.0",
+    "dayjs": "^1.11.13",
     "hono": "^4.6.11",
     "honox": "^0.1.26"
   },
