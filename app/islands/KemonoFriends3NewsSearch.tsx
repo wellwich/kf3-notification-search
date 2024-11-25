@@ -1,6 +1,7 @@
 import { useEffect, useState } from "hono/jsx";
 import { newsArraySchema, News } from "../schema";
 import { QueryParser } from "../query-parser";
+import { normalizeQuery } from "../query-normalizer";
 import { getJapaneseDate } from "../get-japanese-date";
 
 
@@ -147,11 +148,13 @@ const KemonoFriends3NewsSearch = () => {
   };
 
   // ニュースデータをキーワードでフィルター
-  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) => {
-    if (!keyword.trim()) return newsArray;
+  const filterNewsByKeyword = (newsArray: Array<News>, query: string) => {
+    const normalizedQuery = normalizeQuery(query);
+    console.log("Normalized query:", normalizedQuery);
+    if (!normalizedQuery) return newsArray;
 
     try {
-      const parser = new QueryParser(keyword);
+      const parser = new QueryParser(normalizedQuery);
       let evaluator;
       try {
         evaluator = parser.parse();
@@ -159,11 +162,17 @@ const KemonoFriends3NewsSearch = () => {
         console.error("Query parsing error:", error);
         return [];
       }
-      return newsArray.filter(news => evaluator(news.title));
+      return newsArray.filter(news => {
+        const normalizedTitle = normalizeQuery(news.title);
+        return evaluator(normalizedTitle);
+      });
     } catch (error) {
       console.error("Query parsing error:", error);
       // エラー時は単純な部分一致検索にフォールバック
-      return newsArray.filter(news => news.title.includes(keyword));
+      return newsArray.filter(news => {
+        const normalizedTitle = normalizeQuery(news.title);
+        return normalizedTitle.includes(normalizedQuery);
+      });
     }
   };
 
