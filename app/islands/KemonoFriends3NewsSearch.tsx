@@ -1,6 +1,7 @@
 import { useEffect, useState } from "hono/jsx";
 import { newsArraySchema, News } from "../schema";
 import { QueryParser } from "../query-parser";
+import { normalizeQuery } from "../query-normalizer";
 import { getJapaneseDate } from "../get-japanese-date";
 
 
@@ -147,11 +148,13 @@ const KemonoFriends3NewsSearch = () => {
   };
 
   // ニュースデータをキーワードでフィルター
-  const filterNewsByKeyword = (newsArray: Array<News>, keyword: string) => {
-    if (!keyword.trim()) return newsArray;
+  const filterNewsByKeyword = (newsArray: Array<News>, query: string) => {
+    const normalizedQuery = normalizeQuery(query);
+    console.log("Normalized query:", normalizedQuery);
+    if (!normalizedQuery) return newsArray;
 
     try {
-      const parser = new QueryParser(keyword);
+      const parser = new QueryParser(normalizedQuery);
       let evaluator;
       try {
         evaluator = parser.parse();
@@ -159,11 +162,17 @@ const KemonoFriends3NewsSearch = () => {
         console.error("Query parsing error:", error);
         return [];
       }
-      return newsArray.filter(news => evaluator(news.title));
+      return newsArray.filter(news => {
+        const normalizedTitle = normalizeQuery(news.title);
+        return evaluator(normalizedTitle);
+      });
     } catch (error) {
       console.error("Query parsing error:", error);
       // エラー時は単純な部分一致検索にフォールバック
-      return newsArray.filter(news => news.title.includes(keyword));
+      return newsArray.filter(news => {
+        const normalizedTitle = normalizeQuery(news.title);
+        return normalizedTitle.includes(normalizedQuery);
+      });
     }
   };
 
@@ -195,183 +204,183 @@ const KemonoFriends3NewsSearch = () => {
   return (
     <div class="min-h-screen bg-yellow-400 px-4">
       <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6 my-4">
-          <div class={`flex justify-center items-center p-8 ${isLoading ? "" : "hidden"}`}>
-            <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
-            <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
-          </div>
+        <div class={`flex justify-center items-center p-8 ${isLoading ? "" : "hidden"}`}>
+          <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+          <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
+        </div>
 
-          <div class={`space-y-3 ${isLoading ? "hidden" : ""}`} >
-            {/* 検索欄トグルボタン */}
-            <button
-              onClick={toggleSearchVisibility}
-              class={`w-full md:w-auto px-6 py-3 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
-                isSearchVisible ? "bg-gray-500 hover:bg-gray-600" : "bg-blue-500 hover:bg-blue-600"
+        <div class={`space-y-3 ${isLoading ? "hidden" : ""}`} >
+          {/* 検索欄トグルボタン */}
+          <button
+            onClick={toggleSearchVisibility}
+            class={`w-full md:w-auto px-6 py-3 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+              isSearchVisible ? "bg-gray-500 hover:bg-gray-600" : "bg-blue-500 hover:bg-blue-600"
+            }`}
+          >
+            <svg
+              class={`w-5 h-5 transition-transform duration-200 ${
+                isSearchVisible ? "rotate-180" : ""
               }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg
-                class={`w-5 h-5 transition-transform duration-200 ${
-                  isSearchVisible ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-              検索オプション
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+            検索オプション
+          </button>
 
-            {/* 検索欄 */}
-            <div
-              class={`transition-all duration-300 ease-in-out overflow-hidden ${
-                isSearchVisible ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-              }`}
-            >
-              <div class="bg-white p-1 rounded-lg space-y-3">
-                {/* ソート順と表示件数 */}
-                <div class="flex flex-wrap items-center gap-4">
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="sortOrder">
-                      ソート順:
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="sortOrder"
-                        value={sortOrder}
-                        onChange={handleSortOrderChange}
-                        className="w-full pl-4 pr-8 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
-                      >
-                        <option value="desc">新しい順</option>
-                        <option value="asc">古い順</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="displayLimit">
-                      表示件数:
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="displayLimit"
-                        value={selectedDisplayLimit === Infinity ? "all" : selectedDisplayLimit.toString()}
-                        onChange={handleSelectedDisplayLimitChange}
-                        className="w-full pl-4 pr-8 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
-                      >
-                        <option value="10">10件</option>
-                        <option value="50">50件</option>
-                        <option value="100">100件</option>
-                        <option value="all">全件</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* キーワード検索 */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    キーワード検索:
+          {/* 検索欄 */}
+          <div
+            class={`transition-all duration-300 ease-in-out overflow-hidden ${
+              isSearchVisible ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div class="bg-white p-1 rounded-lg space-y-3">
+              {/* ソート順と表示件数 */}
+              <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="sortOrder">
+                    ソート順:
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                    <input
-                      type="text"
-                      className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="(測定 or 掃除) 開催 -予告"
-                      value={searchKeyword}
-                      onChange={handleSearchChange}
-                      onKeyDown={handleKeyDown}
-                    />
-                    <button
-                      onClick={handleSearch}
-                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
+                  <div className="relative">
+                    <select
+                      id="sortOrder"
+                      value={sortOrder}
+                      onChange={handleSortOrderChange}
+                      className="w-full pl-4 pr-8 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
                     >
-                      検索
-                    </button>
+                      <option value="desc">新しい順</option>
+                      <option value="asc">古い順</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
-                {/* 日付範囲 */}
-                <div class="space-y-2">
-                  <label class="block text-sm font-medium text-gray-700">
-                    期間:
+                <div class="flex items-center gap-2">
+                  <label class="text-sm font-medium text-gray-700 whitespace-nowrap" for="displayLimit">
+                    表示件数:
                   </label>
-                  <div class="flex flex-wrap items-center gap-2">
-                    <input
-                      type="date"
-                      id="startDate"
-                      value={startDate}
-                      onChange={handleStartDateChange}
-                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
-                    />
-                    <span class="text-gray-500">～</span>
-                    <input
-                      type="date"
-                      id="endDate"
-                      value={endDate}
-                      onChange={handleEndDateChange}
-                      class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
-                    />
+                  <div className="relative">
+                    <select
+                      id="displayLimit"
+                      value={selectedDisplayLimit === Infinity ? "all" : selectedDisplayLimit.toString()}
+                      onChange={handleSelectedDisplayLimitChange}
+                      className="w-full pl-4 pr-8 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                    >
+                      <option value="10">10件</option>
+                      <option value="50">50件</option>
+                      <option value="100">100件</option>
+                      <option value="all">全件</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="border-t border-gray-300 my-4"></div>
-            </div>
 
-            {/* お知らせヒット件数 */}
-            <div class="text-sm text-gray-600 font-medium mt-0">
-              おしらせの件数: {numberOfNews}件
-            </div>
-
-            {/* ニュースリスト */}
-            <ul class="space-y-4">
-              {newsData.map((news, index) => (
-                <li
-                  key={index}
-                  class="group bg-white hover:bg-blue-50 border border-gray-300 rounded-lg transition-all duration-200 hover:shadow-lg"
-                >
-                  <a
-                    href={`https://kemono-friends-3.jp${news.targetUrl}`}
-                    target="_blank"
-                    class="block p-4"
+              {/* キーワード検索 */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  キーワード検索:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    type="text"
+                    className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="(測定 or 掃除) 開催 -予告"
+                    value={searchKeyword}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
                   >
-                    <p class="text-gray-800 group-hover:text-blue-600 transition-colors duration-200 mb-2">
-                      {news.title}
-                    </p>
-                    <time class="text-sm text-gray-500">
-                      {news.newsDate.slice(0, 11)}
-                    </time>
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            {/* もっと見るボタン */}
-            {numberOfNews > displayLimit && (
-              <div class="flex justify-center">
-                <button
-                  onClick={handleLoadMore}
-                  class="w-full md:w-96 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
-                >
-                  もっと見る
-                </button>
+                    検索
+                  </button>
+                </div>
               </div>
-            )}
+
+              {/* 日付範囲 */}
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">
+                  期間:
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="date"
+                    id="startDate"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                  />
+                  <span class="text-gray-500">～</span>
+                  <input
+                    type="date"
+                    id="endDate"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="border-t border-gray-300 my-4"></div>
           </div>
+
+          {/* お知らせヒット件数 */}
+          <div class="text-sm text-gray-600 font-medium mt-0">
+            おしらせの件数: {numberOfNews}件
+          </div>
+
+          {/* ニュースリスト */}
+          <ul class="space-y-4">
+            {newsData.map((news, index) => (
+              <li
+                key={index}
+                class="group bg-white hover:bg-blue-50 border border-gray-300 rounded-lg transition-all duration-200 hover:shadow-lg"
+              >
+                <a
+                  href={`https://kemono-friends-3.jp${news.targetUrl}`}
+                  target="_blank"
+                  class="block p-4"
+                >
+                  <p class="text-gray-800 group-hover:text-blue-600 transition-colors duration-200 mb-2">
+                    {news.title}
+                  </p>
+                  <time class="text-sm text-gray-500">
+                    {news.newsDate.slice(0, 11)}
+                  </time>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {/* もっと見るボタン */}
+          {numberOfNews > displayLimit && (
+            <div class="flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                class="w-full md:w-96 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200"
+              >
+                もっと見る
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
