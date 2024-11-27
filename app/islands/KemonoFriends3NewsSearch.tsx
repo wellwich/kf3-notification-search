@@ -19,6 +19,7 @@ const KemonoFriends3NewsSearch = () => {
   const [endDate, setEndDate] = useState(getJapaneseDate()); // フィルター終了日
   const [numberOfNews, setNumberOfNews] = useState(0); // ニュースの数
   const [isLoading, setIsLoading] = useState(true); // データ取得中の状態
+  const [errorMessage, setErrorMesage] = useState<string | null>(null); // エラーメッセージ
 
   // コンポーネント初回レンダリング時にニュースデータを取得
   useEffect(() => {
@@ -54,6 +55,7 @@ const KemonoFriends3NewsSearch = () => {
       })
       .catch((error) => {
         console.error("Failed to fetch news data:", error);
+        setErrorMesage("データの取得に失敗しました。\n時間を空けて再度お試しください。");
       })
       .finally(() => {
         setIsLoading(false);
@@ -204,12 +206,21 @@ const KemonoFriends3NewsSearch = () => {
   return (
     <div class="min-h-screen bg-yellow-400 px-4">
       <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6 my-4">
-        <div class={`flex justify-center items-center p-8 ${isLoading ? "" : "hidden"}`}>
+        {errorMessage && (
+          <div class="bg-red-100 text-red-700 px-4 py-3 rounded-lg relative flex items-center justify-center" role="alert">
+            <svg class="w-6 h-6 mr-2 text-red-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728" />
+            </svg>
+            <span class="block sm:inline">{errorMessage}</span>
+          </div>
+        )}
+
+        <div class={`flex justify-center items-center p-8 ${isLoading && !errorMessage ? "" : "hidden"}`}>
           <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
           <span class="ml-4 text-gray-600 font-medium">データを取得しています...</span>
         </div>
 
-        <div class={`space-y-3 ${isLoading ? "hidden" : ""}`} >
+        <div class={`space-y-3 ${isLoading || errorMessage ? "hidden" : ""}`} >
           {/* 検索欄トグルボタン */}
           <button
             onClick={toggleSearchVisibility}
