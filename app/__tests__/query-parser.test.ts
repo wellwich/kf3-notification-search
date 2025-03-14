@@ -202,6 +202,13 @@ describe('QueryParser', () => {
           expect(evaluator('測定掃除')).toBe(false);
           expect(evaluator('測定AND掃除')).toBe(true);
         });
+
+        it('AND単体', () => {
+          const parser = new QueryParser('AND');
+          const evaluator = parser.parse();
+          expect(evaluator('テスト')).toBe(false);
+          expect(evaluator('測定AND掃除')).toBe(true);
+        });
       });
 
       describe('不正なOR', () => {
@@ -244,6 +251,13 @@ describe('QueryParser', () => {
           expect(evaluator('測定掃除')).toBe(false);
           expect(evaluator('測定OR掃除')).toBe(true);
         });
+
+        it('OR単体', () => {
+          const parser = new QueryParser('OR');
+          const evaluator = parser.parse();
+          expect(evaluator('テスト')).toBe(false);
+          expect(evaluator('測定OR掃除')).toBe(true);
+        });
       });
 
       describe('不正なNOT', () => {
@@ -261,6 +275,13 @@ describe('QueryParser', () => {
           expect(evaluator('テスト')).toBe(false);
           expect(evaluator('測定a掃b除')).toBe(false);
           expect(evaluator('測定a-b掃除')).toBe(true);
+        });
+
+        it('NOT単体', () => {
+          const parser = new QueryParser('-');
+          const evaluator = parser.parse();
+          expect(evaluator('テスト')).toBe(false);
+          expect(evaluator('測定-掃除')).toBe(true);
         });
       });
     });
