@@ -6,7 +6,8 @@
     "build": "vite build --mode client && vite build",
     "preview": "wrangler pages dev",
     "deploy": "$npm_execpath run build && wrangler pages deploy",
-    "test": "vite-node ./app/__tests__/query-parser.test.ts && vite-node ./app/__tests__/query-normalizer.test.ts && vite-node ./app/__tests__/get-japanese-date.test.ts"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "private": true,
   "dependencies": {
@@ -25,6 +26,7 @@
     "tailwindcss": "^3.4.13",
     "vite": "^5.4.8",
     "vite-node": "^2.1.4",
+    "vitest": "^3.0.8",
     "wrangler": "^3.80.0"
   }
 }

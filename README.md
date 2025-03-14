@@ -83,5 +83,11 @@ bun run dev
 ### 7. テストケース実行
 
 ```bash
-npm run test
+npm test
+```
+
+or
+
+```bash
+bun run test
 ```
