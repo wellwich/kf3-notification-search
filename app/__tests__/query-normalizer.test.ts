@@ -1,5 +1,3 @@
-// Vitestを使用したテスト
-
 import { describe, it, expect } from 'vitest';
 import { normalizeQuery } from '../query-normalizer';
 
